@@ -1,0 +1,38 @@
+# https://mermaid.live/edit
+
+sequenceDiagram
+    Person->>Fruit:plant
+    Fruit-->>Fruit:grow
+    Person->>Fruit:isRipe
+    Person->>Fruit:eat
+
+classDiagram
+    ChessBoard *-- ChessPiece : has-a
+    ChessPiece *-- PieceType : has-a
+
+    ChessGame ..> ChessMove : uses-a
+
+    Pawn --|> ChessPiece : is-a
+
+    Object *-- Object : has-a
+
+    class Object {
+        value
+    }
+
+
+    classDiagram
+    object <|-- Organism
+    Organism <|-- Animal
+    Animal *-- Soul
+    Animal *-- Body
+    Body *-- Head
+    Body *-- Torso
+    Body *-- Appendage
+    Appendage <|-- Leg
+    Appendage <|-- Arm
+    Animal <|-- Mammal
+    Mammal <|-- Person
+
+
+
