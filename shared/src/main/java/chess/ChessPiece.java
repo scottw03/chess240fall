@@ -129,6 +129,20 @@ public class ChessPiece {
                 });
     }
 
+    private Collection<ChessMove> bishopMoves(
+            ChessBoard board,
+            ChessPosition position) {
+        return directionalMoves(
+                board,
+                position,
+                new int[][]{
+                        {1, 1},
+                        {-1, 1},
+                        {-1, -1},
+                        {1,-1}
+                });
+    }
+
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -142,7 +156,7 @@ public class ChessPiece {
             case KING -> null;
             case QUEEN -> null;
             case ROOK -> rookMoves(board, myPosition);
-            case BISHOP -> null;
+            case BISHOP -> bishopMoves(board, myPosition);
             case KNIGHT -> null;
             case PAWN -> null;
         };
