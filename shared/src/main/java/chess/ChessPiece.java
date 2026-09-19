@@ -115,6 +115,25 @@ public class ChessPiece {
         }
     }
 
+    private void addSingleMoves(
+            Collection<ChessMove> moves,
+            ChessBoard board,
+            ChessPosition start,
+            int[][] directions) {
+        for (int[] dir : directions) {
+            int row = start.getRow() + dir[0];
+            int col = start.getColumn() + dir[1];
+            ChessPosition newPos = new ChessPosition(row, col);
+            if (viableDestination(board, newPos)) {
+                moves.add(
+                        new ChessMove(
+                                start,
+                                newPos,
+                                null));
+            }
+        }
+    }
+
     private Collection<ChessMove> rookMoves(
             ChessBoard board,
             ChessPosition position) {
@@ -161,6 +180,29 @@ public class ChessPiece {
                 });
     }
 
+    private Collection<ChessMove> knightMoves(
+            ChessBoard board,
+            ChessPosition position) {
+        Collection<ChessMove> moves =
+                new ArrayList<>();
+        int[][] directions ={
+                {2, 1},
+                {2, -1},
+                {-2, 1},
+                {-2, -1},
+                {1, 2},
+                {1, -2},
+                {-1, 2},
+                {-1, -2}
+        };
+        addSingleMoves(
+                moves,
+                board,
+                position,
+                directions);
+        return moves;
+    }
+
     private Collection<ChessMove> kingMoves(
             ChessBoard board,
             ChessPosition position) {
@@ -180,7 +222,7 @@ public class ChessPiece {
             case QUEEN -> queenMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
-            case KNIGHT -> null;
+            case KNIGHT -> knightMoves(board, myPosition);
             case PAWN -> null;
         };
     }
