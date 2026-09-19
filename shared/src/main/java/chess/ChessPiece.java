@@ -256,6 +256,16 @@ public class ChessPiece {
 
     }
 
+    private boolean viabilityCheck(
+            int row,
+            int col)
+    {
+        return row >= 1
+                && row <= 8
+                && col >= 1
+                && col <= 8;
+    }
+
     private void addForwardPawnMoves(
             Collection<ChessMove> moves,
             ChessBoard board,
@@ -263,7 +273,32 @@ public class ChessPiece {
             int direction,
             int startRow,
             int promotionRow) {
-
+        int row = start.getRow();
+        int col = start.getColumn();
+        ChessPosition oneForward = new ChessPosition((row + direction), col);
+        if (!viableDestination(board, oneForward)) {
+            return;
+        }
+        if (board.getPiece(oneForward) != null) {
+            return;
+        }
+        addPawnMove(
+                moves,
+                start,
+                oneForward,
+                promotionRow);
+        if (row != startRow) {
+            return;
+        }
+        ChessPosition twoForward = new ChessPosition(row + (direction * 2), col);
+        if (!viableDestination(board, twoForward)) {
+            return;
+        }
+        moves.add(
+                new ChessMove(
+                        start,
+                        twoForward,
+                        null));
     }
 
     private void addCapturePawnMoves(
@@ -272,7 +307,32 @@ public class ChessPiece {
             ChessPosition start,
             int direction,
             int promotionRow) {
-
+        int row = start.getRow();
+        int col = start.getColumn();
+        int[] captureColumns = {
+                col - 1,
+                col + 1
+        };
+        for (int captureCol : captureColumns) {
+            int captureRow = row + direction;
+            ChessPosition diagonal = new ChessPosition(captureRow, captureCol);
+            if (!viableDestination(board, diagonal)) {
+                if (viabilityCheck(captureRow, captureCol)) {
+                    ChessPiece target = board.getPiece(diagonal);
+                    if (target == null) {
+                        continue;
+                    }
+                    if (target.getTeamColor() == pieceColor) {
+                        continue;
+                    }
+                    addPawnMove(
+                            moves,
+                            start,
+                            diagonal,
+                            promotionRow);
+                }
+            }
+        }
     }
 
     private void addPawnMove(
@@ -319,7 +379,7 @@ public class ChessPiece {
             case ROOK -> rookMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
             case KNIGHT -> knightMoves(board, myPosition);
-            case PAWN -> null;
+            case PAWN -> pawnMoves(board, myPosition);
         };
     }
 }
