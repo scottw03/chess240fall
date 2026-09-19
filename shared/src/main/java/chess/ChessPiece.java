@@ -229,7 +229,80 @@ public class ChessPiece {
     private Collection<ChessMove> pawnMoves (
             ChessBoard board,
             ChessPosition position) {
-        return null;
+        Collection<ChessMove> moves = new ArrayList<>();
+        int direction =
+                (pieceColor == ChessGame.TeamColor.WHITE)
+                        ? 1 : -1;
+        int startRow =
+                (pieceColor == ChessGame.TeamColor.WHITE)
+                    ? 2 : 7;
+        int promotionRow =
+                (pieceColor == ChessGame.TeamColor.WHITE)
+                ? 8 : 1;
+        addForwardPawnMoves(
+                moves,
+                board,
+                position,
+                direction,
+                startRow,
+                promotionRow);
+        addCapturePawnMoves(
+                moves,
+                board,
+                position,
+                direction,
+                promotionRow);
+        return moves;
+
+    }
+
+    private void addForwardPawnMoves(
+            Collection<ChessMove> moves,
+            ChessBoard board,
+            ChessPosition start,
+            int direction,
+            int startRow,
+            int promotionRow) {
+
+    }
+
+    private void addCapturePawnMoves(
+            Collection<ChessMove> moves,
+            ChessBoard board,
+            ChessPosition start,
+            int direction,
+            int promotionRow) {
+
+    }
+
+    private void addPawnMove(
+            Collection<ChessMove> moves,
+            ChessPosition start,
+            ChessPosition end,
+            int promotionRow
+    ) {
+        if (end.getRow() == promotionRow) {
+            addPromotionMoves(
+                    moves,
+                    start,
+                    end);
+            return;
+        }
+        moves.add(
+                new ChessMove(
+                        start,
+                        end,
+                        null));
+    }
+
+    private void addPromotionMoves(
+            Collection<ChessMove> moves,
+            ChessPosition start,
+            ChessPosition end) {
+        moves.add(new ChessMove(start, end, PieceType.QUEEN));
+        moves.add(new ChessMove(start, end, PieceType.KNIGHT));
+        moves.add(new ChessMove(start, end, PieceType.BISHOP));
+        moves.add(new ChessMove(start, end, PieceType.ROOK));
     }
 
     /**
