@@ -275,10 +275,12 @@ public class ChessPiece {
             int promotionRow) {
         int row = start.getRow();
         int col = start.getColumn();
-        ChessPosition oneForward = new ChessPosition((row + direction), col);
-        if (!viableDestination(board, oneForward)) {
+        int newRow = row + direction;
+        if (!viabilityCheck(newRow, col)) {
             return;
         }
+        ChessPosition oneForward =
+                new ChessPosition(newRow, col);
         if (board.getPiece(oneForward) != null) {
             return;
         }
@@ -290,15 +292,16 @@ public class ChessPiece {
         if (row != startRow) {
             return;
         }
-        ChessPosition twoForward = new ChessPosition(row + (direction * 2), col);
-        if (!viableDestination(board, twoForward)) {
-            return;
+        ChessPosition twoForward =
+                new ChessPosition(
+                        row + (direction * 2), col);
+        if (board.getPiece(twoForward) == null) {
+            moves.add(
+                    new ChessMove(
+                            start,
+                            twoForward,
+                            null));
         }
-        moves.add(
-                new ChessMove(
-                        start,
-                        twoForward,
-                        null));
     }
 
     private void addCapturePawnMoves(
@@ -315,23 +318,24 @@ public class ChessPiece {
         };
         for (int captureCol : captureColumns) {
             int captureRow = row + direction;
-            ChessPosition diagonal = new ChessPosition(captureRow, captureCol);
-            if (!viableDestination(board, diagonal)) {
-                if (viabilityCheck(captureRow, captureCol)) {
-                    ChessPiece target = board.getPiece(diagonal);
-                    if (target == null) {
-                        continue;
-                    }
-                    if (target.getTeamColor() == pieceColor) {
-                        continue;
-                    }
-                    addPawnMove(
-                            moves,
-                            start,
-                            diagonal,
-                            promotionRow);
-                }
+            if (!viabilityCheck(captureRow, captureCol)) {
+                continue;
             }
+            ChessPosition diagonal =
+                    new ChessPosition(
+                            captureRow, captureCol);
+            ChessPiece target = board.getPiece(diagonal);
+            if (target == null) {
+                continue;
+            }
+            if (target.getTeamColor() == pieceColor) {
+                continue;
+            }
+            addPawnMove(
+                    moves,
+                    start,
+                    diagonal,
+                    promotionRow);
         }
     }
 

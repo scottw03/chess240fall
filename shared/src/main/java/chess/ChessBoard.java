@@ -11,10 +11,9 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] board = new ChessPiece[8][8];
-    public ChessBoard() {
-        
-    }
+    ChessPiece[][] board = new ChessPiece[8][8];
+
+    public ChessBoard() {}
 
     /**
      * Adds a chess piece to the chessboard
