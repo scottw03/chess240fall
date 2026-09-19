@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -74,7 +75,59 @@ public class ChessPiece {
         }
     }
 
+    private Collection<ChessMove> directionalMoves(
+            ChessBoard board,
+            ChessPosition position,
+            int[][] directions) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        for (int[] dir : directions) {
+            addDirectionalMoves(
+                    moves,
+                    board,
+                    position,
+                    dir[0],
+                    dir[1]);
+        }
+        return moves;
+    }
 
+    private void addDirectionalMoves(
+            Collection<ChessMove> moves,
+            ChessBoard board,
+            ChessPosition start,
+            int rowA,
+            int colA) {
+        int row = start.getRow();
+        int col = start.getColumn();
+        while (true) {
+            row += rowA;
+            col += colA;
+            ChessPosition newPos =
+                    new ChessPosition(row, col);
+            if (!viableDestination(board, newPos)) {
+                break;
+            }
+            moves.add(
+                    new ChessMove(start, newPos, null));
+            if (board.getPiece(newPos) != null) {
+                break;
+            }
+        }
+    }
+
+    private Collection<ChessMove> rookMoves(
+            ChessBoard board,
+            ChessPosition position) {
+        return directionalMoves(
+                board,
+                position,
+                new int[][]{
+                        {1, 0},
+                        {-1, 0},
+                        {0, 1},
+                        {0,-1}
+                });
+    }
 
 
     /**
@@ -85,24 +138,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (type == ChessPiece.PieceType.KING) {
-
-        }
-        else if (type == ChessPiece.PieceType.QUEEN) {
-
-        }
-        else if (type == ChessPiece.PieceType.ROOK) {
-
-        }
-        else if (type == ChessPiece.PieceType.BISHOP) {
-
-        }
-        else if (type == ChessPiece.PieceType.KNIGHT) {
-
-        }
-        else if (type == ChessPiece.PieceType.PAWN) {
-
-        }
-        return null;
+        return switch (type) {
+            case KING -> null;
+            case QUEEN -> null;
+            case ROOK -> rookMoves(board, myPosition);
+            case BISHOP -> null;
+            case KNIGHT -> null;
+            case PAWN -> null;
+        };
     }
 }
