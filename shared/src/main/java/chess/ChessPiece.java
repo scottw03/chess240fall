@@ -143,6 +143,29 @@ public class ChessPiece {
                 });
     }
 
+    private Collection<ChessMove> queenMoves(
+            ChessBoard board,
+            ChessPosition position) {
+        return directionalMoves(
+                board,
+                position,
+                new int[][]{
+                        {1, 0},
+                        {-1, 0},
+                        {0, 1},
+                        {0,-1},
+                        {1, 1},
+                        {-1, 1},
+                        {-1, -1},
+                        {1,-1}
+                });
+    }
+
+    private Collection<ChessMove> kingMoves(
+            ChessBoard board,
+            ChessPosition position) {
+        return null;
+    }
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -154,7 +177,7 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (type) {
             case KING -> null;
-            case QUEEN -> null;
+            case QUEEN -> queenMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
             case KNIGHT -> null;
