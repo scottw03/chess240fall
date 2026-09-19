@@ -206,6 +206,29 @@ public class ChessPiece {
     private Collection<ChessMove> kingMoves(
             ChessBoard board,
             ChessPosition position) {
+        Collection<ChessMove> moves =
+                new ArrayList<>();
+        int[][] directions ={
+                {1, 0},
+                {-1, 0},
+                {0, 1},
+                {0,-1},
+                {1, 1},
+                {-1, 1},
+                {-1, -1},
+                {1,-1}
+        };
+        addSingleMoves(
+                moves,
+                board,
+                position,
+                directions);
+        return moves;
+    }
+
+    private Collection<ChessMove> pawnMoves (
+            ChessBoard board,
+            ChessPosition position) {
         return null;
     }
 
@@ -218,7 +241,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (type) {
-            case KING -> null;
+            case KING -> kingMoves(board, myPosition);
             case QUEEN -> queenMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
