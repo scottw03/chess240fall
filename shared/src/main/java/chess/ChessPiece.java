@@ -60,6 +60,7 @@ public class ChessPiece {
         return this.type;
     }
 
+    //checks if the desired end position is on the board, then checks to see if there's something there
     public boolean viableDestination(ChessBoard board, ChessPosition endPosition) {
         int row = endPosition.getRow();
         int col = endPosition.getColumn();
@@ -75,6 +76,7 @@ public class ChessPiece {
         }
     }
 
+    //creates array list and calls addDirectionalMoves to add each direction one by one
     private Collection<ChessMove> directionalMoves(
             ChessBoard board,
             ChessPosition position,
@@ -91,6 +93,7 @@ public class ChessPiece {
         return moves;
     }
 
+    //increments the direction and checks to see if it is still valid: if yes, add the move
     private void addDirectionalMoves(
             Collection<ChessMove> moves,
             ChessBoard board,
@@ -115,6 +118,7 @@ public class ChessPiece {
         }
     }
 
+    //
     private void addSingleMoves(
             Collection<ChessMove> moves,
             ChessBoard board,
@@ -229,33 +233,34 @@ public class ChessPiece {
     private Collection<ChessMove> pawnMoves (
             ChessBoard board,
             ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
+        Collection<ChessMove> moves = new ArrayList<>(); // create collection
         int direction =
-                (pieceColor == ChessGame.TeamColor.WHITE)
+                (pieceColor == ChessGame.TeamColor.WHITE) // get direction for both colors
                         ? 1 : -1;
         int startRow =
-                (pieceColor == ChessGame.TeamColor.WHITE)
+                (pieceColor == ChessGame.TeamColor.WHITE) // get start position for both colors
                     ? 2 : 7;
         int promotionRow =
-                (pieceColor == ChessGame.TeamColor.WHITE)
+                (pieceColor == ChessGame.TeamColor.WHITE) // get promotion row for both colors
                 ? 8 : 1;
-        addForwardPawnMoves(
+        addForwardPawnMoves( // calls addForwardPawnMoves
                 moves,
                 board,
                 position,
                 direction,
                 startRow,
                 promotionRow);
-        addCapturePawnMoves(
+        addCapturePawnMoves( // calls capturePawnMoves
                 moves,
                 board,
                 position,
                 direction,
                 promotionRow);
-        return moves;
+        return moves; //return collection
 
     }
 
+    // only checks to see if the desired position is on the board
     private boolean viabilityCheck(
             int row,
             int col)
@@ -276,27 +281,24 @@ public class ChessPiece {
         int row = start.getRow();
         int col = start.getColumn();
         int newRow = row + direction;
-        if (!viabilityCheck(newRow, col)) {
+        if (!viabilityCheck(newRow, col)) { // checks to see if the new move is allowed
             return;
         }
-        ChessPosition oneForward =
-                new ChessPosition(newRow, col);
-        if (board.getPiece(oneForward) != null) {
+        ChessPosition oneForward = new ChessPosition(newRow, col);
+        if (board.getPiece(oneForward) != null) { // checks to see if there is anything in the way
             return;
         }
-        addPawnMove(
+        addPawnMove( // add any moves that have made it this far
                 moves,
                 start,
                 oneForward,
                 promotionRow);
-        if (row != startRow) {
+        if (row != startRow) { // if it isn't in its start row, you're done
             return;
         }
-        ChessPosition twoForward =
-                new ChessPosition(
-                        row + (direction * 2), col);
+        ChessPosition twoForward = new ChessPosition(row + (direction * 2), col);
         if (board.getPiece(twoForward) == null) {
-            moves.add(
+            moves.add( // if nothing is in the way and it is on the starting position, add that too
                     new ChessMove(
                             start,
                             twoForward,
@@ -319,19 +321,17 @@ public class ChessPiece {
         for (int captureCol : captureColumns) {
             int captureRow = row + direction;
             if (!viabilityCheck(captureRow, captureCol)) {
-                continue;
+                continue; // for each possible capture square, if not on board, ignore
             }
-            ChessPosition diagonal =
-                    new ChessPosition(
-                            captureRow, captureCol);
+            ChessPosition diagonal = new ChessPosition(captureRow, captureCol);
             ChessPiece target = board.getPiece(diagonal);
             if (target == null) {
-                continue;
+                continue; // for each possible target square, if it is empty, ignore
             }
             if (target.getTeamColor() == pieceColor) {
-                continue;
+                continue; // if there is something there, but it's same color, ignore
             }
-            addPawnMove(
+            addPawnMove( // add whatever made it this far
                     moves,
                     start,
                     diagonal,
@@ -345,14 +345,14 @@ public class ChessPiece {
             ChessPosition end,
             int promotionRow
     ) {
-        if (end.getRow() == promotionRow) {
+        if (end.getRow() == promotionRow) { // if it has made it to the promotion row, call addPromotionMoves
             addPromotionMoves(
                     moves,
                     start,
                     end);
             return;
         }
-        moves.add(
+        moves.add( // make the calculated move a real move
                 new ChessMove(
                         start,
                         end,
@@ -362,7 +362,7 @@ public class ChessPiece {
     private void addPromotionMoves(
             Collection<ChessMove> moves,
             ChessPosition start,
-            ChessPosition end) {
+            ChessPosition end) { // adds all possible promotion moves
         moves.add(new ChessMove(start, end, PieceType.QUEEN));
         moves.add(new ChessMove(start, end, PieceType.KNIGHT));
         moves.add(new ChessMove(start, end, PieceType.BISHOP));
@@ -378,7 +378,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (type) {
-            case KING -> kingMoves(board, myPosition);
+            case KING -> kingMoves(board, myPosition); // for each piece type case, return that pieces' moves
             case QUEEN -> queenMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
