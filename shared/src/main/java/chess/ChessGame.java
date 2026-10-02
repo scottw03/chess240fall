@@ -10,16 +10,20 @@ import java.util.Collection;
  */
 public class ChessGame {
     private ChessBoard board;
+    private TeamColor teamTurn;
+    private boolean gameOver = false;
 
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-
+        return teamTurn;
     }
 
     /**
@@ -28,7 +32,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-
+        teamTurn = team;
     }
 
     /**
@@ -47,7 +51,12 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
+        //get the piece at the position
+        //create a collection of every possible move your piece can take
+        //create a separate collection of moves to keep
+        //for each move in the potential moves, check to see if that
+        //move will place you in check and if it is a viable destination
+        //if it is, add it to our keepers list
     }
 
     /**
