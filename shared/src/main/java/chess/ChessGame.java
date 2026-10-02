@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -66,6 +67,22 @@ public class ChessGame {
         BLACK
     }
 
+    //function that copies a board by replicating every square
+    private ChessBoard copyBoard(ChessBoard original) {
+        ChessBoard newBoard = new ChessBoard();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = original.getPiece(pos);
+                if (piece != null) {
+                    ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                    newBoard.addPiece(pos, copiedPiece);
+                }
+            }
+        }
+        return newBoard;
+    }
+
     /**
      * Gets all valid moves for a piece at the given location
      *
@@ -75,11 +92,35 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         //get the piece at the position
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) {
+            return null;
+        }
         //create a collection of every possible move your piece can take
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         //create a separate collection of moves to keep
+        Collection<ChessMove> validMoves = new ArrayList<>();
         //for each move in the potential moves, check to see if that
         //move will place you in check and if it is a viable destination
+        for (ChessMove move : possibleMoves) {
+            //make a temporary duplicate board we can do whatever we want with
+            ChessBoard tempBoard = copyBoard(board);
+            //get the piece you want to move
+            ChessPiece movingPiece = tempBoard.getPiece(move.getStartPosition());
+            //move the piece to the position you wish to try
+            tempBoard.addPiece(move.getEndPosition(), movingPiece);
+            //delete the original
+            tempBoard.addPiece(move.getStartPosition(), null);
+            //make this the state of the game
+            ChessGame tempGame = new ChessGame();
+            tempGame.setBoard(tempBoard);
+            //if the temporary game does not put you in check, add it to the collection
+            if (!tempGame.isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
+            }
+        }
         //if it is, add it to our keepers list
+        return validMoves;
     }
 
     /**
