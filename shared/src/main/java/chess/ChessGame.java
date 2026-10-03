@@ -130,7 +130,39 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        //if the game is already over, it's invalid
+        if (gameOver) {
+            throw new InvalidMoveException();
+        }
+        //if there is no piece, how can it move
+        if (piece == null) {
+            throw new InvalidMoveException();
+        }
+        //if it's not your turn, screw you
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException();
+        }
+        //check all the legal moves, and if it's not in there, hang it all
+        Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
+        if (!legalMoves.contains(move)) {
+            throw new InvalidMoveException();
+        }
+        //if the promotion slot is not empty, it is time to promote a pawn
+        ChessPiece movedPiece = piece;
+        if (move.getPromotionPiece() != null) {
+            movedPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+        //add the piece to it's new spot, and get rid of the piece at the old spot
+        board.addPiece(move.getEndPosition(), movedPiece);
+        board.addPiece(move.getStartPosition(), null);
+        //if it was just white's turn, make it black's turn instead, and vice versa
+        if (teamTurn == TeamColor.WHITE) {
+            teamTurn = TeamColor.BLACK;
+        }
+        else {
+            teamTurn = TeamColor.WHITE;
+        }
     }
 
     //helper function that finds the king piece
