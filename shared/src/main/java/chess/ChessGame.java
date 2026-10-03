@@ -133,6 +133,37 @@ public class ChessGame {
 
     }
 
+    //helper function that finds the king piece
+    private ChessPosition findKing(TeamColor color) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition kingPos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(kingPos);
+                if (piece != null && piece.getTeamColor()
+                        == color && piece.getPieceType()
+                        == ChessPiece.PieceType.KING) {
+                    return kingPos;
+                }
+            }
+        }
+        return null;
+    }
+
+    //helper function that finds any pieces attacking the king
+    private boolean attacksKing(
+            ChessPiece piece,
+            ChessPosition position,
+            ChessPosition kingPosition) {
+        Collection<ChessMove> moves =
+                piece.pieceMoves(board, position);
+        for (ChessMove move : moves) {
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -140,7 +171,34 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
+        //find the position of the king
+        ChessPosition kingPosition = findKing(teamColor);
+        //establish the opposite color
+        TeamColor enemy =
+                (teamColor == TeamColor.WHITE)
+                        ? TeamColor.BLACK
+                        : TeamColor.WHITE;
+        //for each piece on the board, it if is the enemy color
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position =
+                        new ChessPosition(row, col);
+                ChessPiece piece =
+                        board.getPiece(position);
+                if (piece == null ||
+                        piece.getTeamColor() != enemy) {
+                    continue;
+                }
+                //if the piece is in a position to attack the king, return true
+                if (attacksKing(
+                        piece,
+                        position,
+                        kingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //helper function that checks to see if there are any possible moves
