@@ -69,17 +69,22 @@ public class ChessGame {
 
     //function that copies a board by replicating every square
     private ChessBoard copyBoard(ChessBoard original) {
+        //make a new board
         ChessBoard newBoard = new ChessBoard();
+        //for each square on the board
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
+                //check to see where the pieces were on the original
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = original.getPiece(pos);
+                //if there's something there, go ahead and add that piece
                 if (piece != null) {
                     ChessPiece copiedPiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
                     newBoard.addPiece(pos, copiedPiece);
                 }
             }
         }
+        //return the newly copied board
         return newBoard;
     }
 
@@ -167,13 +172,17 @@ public class ChessGame {
 
     //helper function that finds the king piece
     private ChessPosition findKing(TeamColor color) {
+        //for each square on the board
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
+                //act as though it is the king's spot
                 ChessPosition kingPos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(kingPos);
+                //if that piece isn't empty, is the same color, and is the right type
                 if (piece != null && piece.getTeamColor()
                         == color && piece.getPieceType()
                         == ChessPiece.PieceType.KING) {
+                    //the return of the king
                     return kingPos;
                 }
             }
@@ -186,8 +195,10 @@ public class ChessGame {
             ChessPiece piece,
             ChessPosition position,
             ChessPosition kingPosition) {
+        //create a collection of moves for the piece in question
         Collection<ChessMove> moves =
                 piece.pieceMoves(board, position);
+        //if even one of those moves puts the king in check, return true
         for (ChessMove move : moves) {
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
@@ -210,7 +221,7 @@ public class ChessGame {
                 (teamColor == TeamColor.WHITE)
                         ? TeamColor.BLACK
                         : TeamColor.WHITE;
-        //for each piece on the board, it if is the enemy color
+        //for each piece on the board, if it is the enemy color
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition position =
@@ -235,13 +246,17 @@ public class ChessGame {
 
     //helper function that checks to see if there are any possible moves
     private boolean hasLegalMove(TeamColor teamColor) {
+        //for each position on the board
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
+                //see if there is a piece there
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
+                //if there is no piece, or if it isn't your piece, move along
                 if (piece == null || piece.getTeamColor() != teamColor) {
                     continue;
                 }
+                //call the valid moves function, and if it comes back with something, we good
                 Collection<ChessMove> moves = validMoves(pos);
                 if (moves != null && !moves.isEmpty()) {
                     return true;
@@ -258,9 +273,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        //if you're not in check, you're fine
         if (!isInCheck(teamColor)) {
             return false;
         }
+        //if you don't have any legal moves and you're in check, that's not good
         return !hasLegalMove(teamColor);
     }
 
@@ -272,9 +289,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        //if you're in check, it's not a stalemate
         if (isInCheck(teamColor)) {
             return false;
         }
+        //if you don't have any moves, you sneaky dog you've done it
         return !hasLegalMove(teamColor);
     }
 
