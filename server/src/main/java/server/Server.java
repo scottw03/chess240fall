@@ -14,8 +14,8 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        javalin.delete("/db", Server::clearDB);
 
+        javalin.delete("/db", Server::clearDB);
 
     }
 
