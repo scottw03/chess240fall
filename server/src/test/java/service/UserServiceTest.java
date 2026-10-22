@@ -85,4 +85,46 @@ public class UserServiceTest {
         assertEquals("unauthorized", ex.getMessage());
     }
 
+    //Each login generates unique Auth Token (including registration)
+    @Test
+    @DisplayName("Login Generates Unique Tokens")
+    public void loginUniqueTokens() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest(
+                "player1", "password", "player1@email.com");
+        RegisterResult registerResult =
+                userService.register(registerRequest);
+        LoginResult login1 = userService.login(new LoginRequest(
+                "player1", "password"));
+        LoginResult login2 = userService.login(new LoginRequest(
+                "player1", "password"));
+        assertNotEquals(registerResult.authToken(), login1.authToken());
+        assertNotEquals(login1.authToken(), login2.authToken());
+    }
+
+    //Logout
+
+    //Logout Success
+    @Test
+    @DisplayName("Logout Positive")
+    public void logoutPositive() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest(
+                "player1", "password", "player1@email.com");
+        RegisterResult registerResult = userService.register(registerRequest);
+        String token = registerResult.authToken();
+        assertNotNull(authDAO.getAuth(token));
+        LogoutRequest logoutRequest = new LogoutRequest(token);
+        userService.logout(logoutRequest);
+        assertNull(authDAO.getAuth(token));
+    }
+
+    //Logout Failure by invalid token
+    @Test
+    @DisplayName("Logout Negative Invalid Token")
+    public void logoutNegativeInvalidToken() {
+        LogoutRequest request = new LogoutRequest("bad-token");
+        Exception ex = assertThrows(Exception.class, () ->
+                userService.logout(request));
+        assertEquals("unauthorized", ex.getMessage());
+    }
+
 }
