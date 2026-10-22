@@ -6,12 +6,14 @@ import service.UserService;
 import service.requests.*;
 import service.results.*;
 
+//handles register, login and logout
 public class UserHandler {
     private final UserService service;
     private final Gson gson = new Gson();
     public UserHandler(UserService service) {
         this.service = service;
     }
+
     public void register(Context ctx) throws Exception {
         RegisterRequest request = gson.fromJson(ctx.body(),
                 RegisterRequest.class);
@@ -23,6 +25,7 @@ public class UserHandler {
         ctx.contentType("application/json");
         ctx.result(gson.toJson(result));
     }
+
     public void login(Context ctx) throws Exception {
         LoginRequest request = gson.fromJson(ctx.body(),
                 LoginRequest.class);
@@ -34,6 +37,7 @@ public class UserHandler {
             ctx.contentType("application/json");
             ctx.result(gson.toJson(result));
     }
+
     public void logout(Context ctx) throws Exception {
         String authToken = ctx.header("authorization");
         LogoutRequest request = new LogoutRequest(authToken);

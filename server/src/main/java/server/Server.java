@@ -9,10 +9,12 @@ import service.results.ErrorResponse;
 
 public class Server {
 
+    //initialize javalin and gson
     private final Javalin javalin;
     private final Gson gson = new Gson();
 
     public Server() {
+        //configure javalin
         javalin = Javalin.create(config -> {
                 config.staticFiles.add("web");});
 

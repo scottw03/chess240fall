@@ -6,6 +6,8 @@ import service.GameService;
 import service.requests.*;
 import service.results.*;
 
+//handles createGame, listGames and joinGames
+
 public class GameHandler {
     private final GameService service;
     private final Gson gson = new Gson();
