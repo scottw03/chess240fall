@@ -80,5 +80,55 @@ public class GameServiceTest {
 
     //JoinGame
 
+    //JoinGame Success
+    @Test
+    @DisplayName("Join Game Positive")
+    public void joinGamePositive() throws Exception {
+        CreateGameResult createResult = gameService.createGame(
+                new CreateGameRequest("TestGame", VALID_TOKEN));
+        JoinGameRequest request = new JoinGameRequest(
+                "WHITE", createResult.gameID(), VALID_TOKEN);
+        gameService.joinGame(request);
+        GameData updatedGame = gameDAO.getGame(createResult.gameID());
+        assertEquals("player1", updatedGame.whiteUsername());
+        assertNull(updatedGame.blackUsername());
+    }
 
+    //JoinGame Failure due to player color already being taken
+    @Test
+    @DisplayName("Join Game Negative Already Taken")
+    public void joinGameNegativeTaken() throws Exception {
+        CreateGameResult createResult = gameService.createGame(
+                new CreateGameRequest("TestGame", VALID_TOKEN));
+        JoinGameRequest request = new JoinGameRequest(
+                "WHITE", createResult.gameID(), VALID_TOKEN);
+        gameService.joinGame(request);
+        Exception ex = assertThrows(Exception.class, () ->
+                gameService.joinGame(request));
+        assertEquals("already taken", ex.getMessage());
+    }
+
+    //JoinGame Failure due to wrong color
+    @Test
+    @DisplayName("Join Game Invalid Color")
+    public void joinGameInvalidColor() throws Exception {
+        CreateGameResult createResult = gameService.createGame(
+                new CreateGameRequest("TestGame", VALID_TOKEN));
+        JoinGameRequest request = new JoinGameRequest(
+                "BLUE", createResult.gameID(), VALID_TOKEN);
+        Exception ex = assertThrows(Exception.class, () ->
+                gameService.joinGame(request));
+        assertEquals("bad request", ex.getMessage());
+    }
+
+    //JoinGame Failure due to no game ID
+    @Test
+    @DisplayName("Join Game Null GameID")
+    public void joinGameNullGameID() {
+        JoinGameRequest request = new JoinGameRequest(
+                "WHITE", null, VALID_TOKEN);
+        Exception ex = assertThrows(Exception.class, () ->
+                gameService.joinGame(request));
+        assertEquals("bad request", ex.getMessage());
+    }
 }
