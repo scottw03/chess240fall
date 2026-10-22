@@ -30,7 +30,7 @@ public class UserService {
         if (userDAO.getUser(request.username()) != null) {
             throw new Exception("already taken");
         }
-        // creates user data if successful
+        //creates user data if successful
         String hashedPassword = BCrypt.hashpw(
                 request.password(), BCrypt.gensalt()
         );

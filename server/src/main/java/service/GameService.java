@@ -18,16 +18,20 @@ public class GameService {
         this.authDAO = authDAO;
     }
     public CreateGameResult createGame(CreateGameRequest request) throws Exception {
+        //fails if there's no request made
         if (request == null) {
             throw new Exception("bad request");
         }
+        //fails if you give it the wrong auth token
         AuthData auth = authDAO.getAuth(request.authToken());
         if (auth == null) {
             throw new Exception("unauthorized");
         }
+        //fails if you don't give it a name
         if (request.gameName() == null || request.gameName().isBlank()) {
             throw new Exception("bad request");
         }
+        //creates a game if successful
         ChessGame game = new ChessGame();
         GameData gameData = new GameData(
                 0,
@@ -39,6 +43,7 @@ public class GameService {
         int gameID = gameDAO.createGame(gameData);
         return new CreateGameResult(gameID);
     }
+
     public ListGamesResult listGames(
             ListGamesRequest request) throws Exception {
         if (request == null) {
@@ -51,6 +56,7 @@ public class GameService {
         Collection<GameData> games = gameDAO.listGames();
         return new ListGamesResult(games);
     }
+
     public void joinGame(JoinGameRequest request) throws Exception {
         if (request == null) {
             throw new Exception("bad request");
