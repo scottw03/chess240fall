@@ -31,8 +31,11 @@ public class UserService {
             throw new Exception("already taken");
         }
         // creates user data if successful
+        String hashedPassword = BCrypt.hashpw(
+                request.password(), BCrypt.gensalt()
+        );
         UserData user = new UserData(
-                request.username(), request.password(), request.email()
+                request.username(), hashedPassword, request.email()
         );
         userDAO.createUser(user);
         String token = UUID.randomUUID().toString();
