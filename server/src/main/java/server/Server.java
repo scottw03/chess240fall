@@ -3,11 +3,9 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.*;
-import io.javalin.http.Context;
 import handler.*;
 import service.*;
-
-import java.util.Map;
+import service.results.ErrorResponse;
 
 public class Server {
 
@@ -33,8 +31,8 @@ public class Server {
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
 
-
         // register endpoints and exceptions using handlers names
+        //endpoints
         javalin.delete("/db", clearHandler::clear);
         javalin.post("/user", userHandler::register);
         javalin.post("/session", userHandler::login);
@@ -42,8 +40,27 @@ public class Server {
         javalin.get("/game", gameHandler::listGames);
         javalin.post("/game", gameHandler::createGame);
         javalin.put("/game", gameHandler::joinGame);
+        //exceptions
+        javalin.exception(Exception.class, (ex, ctx) -> {
+            String message = ex.getMessage();
+            if ("bad request".equals(message)) {
+                ctx.status(400);
+            }
+            else if ("unauthorized".equals(message)) {
+                ctx.status(401);
+            }
+            else if ("already taken".equals(message)) {
+                ctx.status(403);
+            }
+            else {
+                ex.printStackTrace();
+                ctx.status(500);
+                message = "internal server error";
+            }
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResponse("Error: " + message)));
+        });
     }
-
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
