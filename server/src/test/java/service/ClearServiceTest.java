@@ -6,6 +6,8 @@ import org.junit.jupiter.api.*;
 import chess.ChessGame;
 import static org.junit.jupiter.api.Assertions.*;
 
+//used to test the "clear" functionality
+
 public class ClearServiceTest {
     private UserDAO userDAO;
     private AuthDAO authDAO;

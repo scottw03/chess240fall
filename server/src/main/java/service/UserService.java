@@ -21,13 +21,16 @@ public class UserService {
     }
     public RegisterResult register(RegisterRequest request)
             throws Exception {
+        //fails if nothing is input into required field
         if (request.username() == null || request.password() == null || request.email() == null ||
                 request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
             throw new Exception("bad request");
         }
+        //fails if registration attempt is a duplicate
         if (userDAO.getUser(request.username()) != null) {
             throw new Exception("already taken");
         }
+        // creates user data if successful
         UserData user = new UserData(
                 request.username(), request.password(), request.email()
         );
