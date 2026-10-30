@@ -50,5 +50,53 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
         }
     }
 
+    @Override
+    public AuthData getAuth(String authToken)
+            throws DataAccessException {
 
+        String sql = """
+                SELECT authToken, username
+                FROM authTokens
+                WHERE authToken=?
+                """;
+
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+
+            try (var rs = executeQuery(ps, authToken)) {
+
+                if (rs.next()) {
+
+                    return new AuthData(
+                            rs.getString("authToken"),
+                            rs.getString("username")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("database error", e);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void deleteAuth(String authToken)
+            throws DataAccessException {
+
+        String sql = """
+                DELETE FROM authTokens
+                WHERE authToken=?
+                """;
+
+        executeUpdate(sql, authToken);
+    }
+
+    @Override
+    public void clear()
+            throws DataAccessException {
+
+        executeUpdate("TRUNCATE authTokens");
+    }
 }
