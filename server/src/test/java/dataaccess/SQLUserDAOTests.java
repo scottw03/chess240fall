@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class SQLUserDAOTests {
     private SQLUserDAO userDAO;
@@ -16,10 +17,12 @@ public class SQLUserDAOTests {
     @Test
     @DisplayName("Create User Positive")
     public void createUserPositive() throws Exception {
+        String hashedPassword =
+                BCrypt.hashpw("password123", BCrypt.gensalt());
 
         UserData user = new UserData(
                 "player1",
-                "password123",
+                hashedPassword,
                 "player1@email.com"
         );
 
@@ -28,11 +31,9 @@ public class SQLUserDAOTests {
         UserData retrieved = userDAO.getUser("player1");
 
         assertNotNull(retrieved);
-
         assertEquals(user.username(), retrieved.username());
         assertEquals(user.email(), retrieved.email());
-
-        assertNotEquals(user.password(), retrieved.password());
+        assertEquals(user.password(), retrieved.password());
     }
 
     @Test
