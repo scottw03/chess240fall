@@ -17,12 +17,10 @@ public class SQLUserDAOTests {
     @Test
     @DisplayName("Create User Positive")
     public void createUserPositive() throws Exception {
-        String hashedPassword =
-                BCrypt.hashpw("password123", BCrypt.gensalt());
 
         UserData user = new UserData(
                 "player1",
-                hashedPassword,
+                "password123",
                 "player1@email.com"
         );
 
@@ -31,9 +29,11 @@ public class SQLUserDAOTests {
         UserData retrieved = userDAO.getUser("player1");
 
         assertNotNull(retrieved);
+
         assertEquals(user.username(), retrieved.username());
         assertEquals(user.email(), retrieved.email());
-        assertEquals(user.password(), retrieved.password());
+
+        assertNotEquals(user.password(), retrieved.password());
     }
 
     @Test
