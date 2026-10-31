@@ -13,7 +13,7 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
         DatabaseManager.createDatabase();
         String[] statements = {
                 """
-                CREATE TABLE IF NOT EXISTS authToken (
+                CREATE TABLE IF NOT EXISTS authTokens (
                     authToken VARCHAR(255) NOT NULL PRIMARY KEY,
                     username VARCHAR(255) NOT NULL
                     )
