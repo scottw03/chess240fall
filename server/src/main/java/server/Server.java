@@ -18,10 +18,17 @@ public class Server {
         javalin = Javalin.create(config -> {
                 config.staticFiles.add("web");});
 
-        //create data access objects using MemoryDAO classes
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
-        var authDAO = new MemoryAuthDAO();
+        //create data access objects using SQLDAO classes
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        GameDAO gameDAO;
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
+            gameDAO = new SQLGameDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         //pass created objects into service classes
         UserService userService = new UserService(userDAO, authDAO);
