@@ -7,6 +7,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameDAOTests {
+
     private SQLGameDAO gameDAO;
 
     @BeforeEach
