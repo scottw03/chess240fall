@@ -99,4 +99,5 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
 
         executeUpdate("TRUNCATE authTokens");
     }
+
 }
