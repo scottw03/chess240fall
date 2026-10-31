@@ -5,24 +5,31 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLDAO {
+
     protected void configureDatabase(String[] statements)
             throws DataAccessException {
+
         DatabaseManager.createDatabase();
-        try (var connection =
-                     DatabaseManager.getConnection()) {
+
+        try (var conn = DatabaseManager.getConnection()) {
+
             for (String statement : statements) {
+
                 try (PreparedStatement ps =
-                        connection.prepareStatement(
-                                statement)) {
+                             conn.prepareStatement(statement)) {
+
                     ps.executeUpdate();
                 }
             }
+
         } catch (SQLException e) {
+
             throw new DataAccessException(
-                    "Unable to configure database", e);
+                    "Unable to configure database",
+                    e
+            );
         }
     }
-
     protected int executeUpdate(
             String sql,
             Object... params
@@ -41,7 +48,6 @@ public class SQLDAO {
             );
         }
     }
-
     protected ResultSet executeQuery(
             PreparedStatement ps,
             Object... params
@@ -50,7 +56,6 @@ public class SQLDAO {
         setParameters(ps, params);
         return ps.executeQuery();
     }
-
     protected void setParameters(
             PreparedStatement ps,
             Object... params

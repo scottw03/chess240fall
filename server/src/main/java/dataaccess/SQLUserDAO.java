@@ -1,6 +1,8 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.SQLException;
 
 public class SQLUserDAO extends SQLDAO implements UserDAO {
@@ -10,37 +12,49 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
     }
 
     private void configureTable() throws DataAccessException {
+
         String[] statements = {
                 """
                 CREATE TABLE IF NOT EXISTS users (
                     username VARCHAR(255) NOT NULL PRIMARY KEY,
                     password VARCHAR(255) NOT NULL,
                     email VARCHAR(255) NOT NULL
-                    )
+                )
                 """
         };
+
         configureDatabase(statements);
     }
 
     @Override
-    public void createUser(UserData user) throws DataAccessException {
+    public void createUser(UserData user)
+            throws DataAccessException {
+
         if (user == null) {
             throw new DataAccessException("bad request");
         }
 
+        String hashedPassword =
+                BCrypt.hashpw(
+                        user.password(),
+                        BCrypt.gensalt()
+                );
+
         String sql = """
-            INSERT INTO users (username, password, email)
-            VALUES (?, ?, ?)
-            """;
+                INSERT INTO users (username, password, email)
+                VALUES (?, ?, ?)
+                """;
 
         try {
             executeUpdate(
                     sql,
                     user.username(),
-                    user.password(), // Already hashed by UserService.register().
+                    hashedPassword,
                     user.email()
             );
+
         } catch (DataAccessException e) {
+
             if (e.getMessage().toLowerCase().contains("duplicate")) {
                 throw new DataAccessException("already taken");
             }

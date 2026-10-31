@@ -4,11 +4,12 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import service.requests.RegisterRequest;
+import service.results.RegisterResult;
 import service.requests.LoginRequest;
 import service.requests.LogoutRequest;
-import service.results.RegisterResult;
 import service.results.LoginResult;
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.UUID;
 
 public class UserService {
@@ -21,21 +22,15 @@ public class UserService {
     }
     public RegisterResult register(RegisterRequest request)
             throws Exception {
-        //fails if nothing is input into required field
         if (request.username() == null || request.password() == null || request.email() == null ||
                 request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
             throw new Exception("bad request");
         }
-        //fails if registration attempt is a duplicate
         if (userDAO.getUser(request.username()) != null) {
             throw new Exception("already taken");
         }
-        //creates user data if successful
-        String hashedPassword = BCrypt.hashpw(
-                request.password(), BCrypt.gensalt()
-        );
         UserData user = new UserData(
-                request.username(), hashedPassword, request.email()
+                request.username(), request.password(), request.email()
         );
         userDAO.createUser(user);
         String token = UUID.randomUUID().toString();
