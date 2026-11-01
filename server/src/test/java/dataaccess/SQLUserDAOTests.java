@@ -3,7 +3,6 @@ package dataaccess;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class SQLUserDAOTests {
     private SQLUserDAO userDAO;
