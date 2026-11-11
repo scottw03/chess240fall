@@ -2,8 +2,8 @@ package client;
 
 import com.google.gson.Gson;
 import model.AuthData;
-import service.requests.RegisterRequest;
-import service.results.ErrorResponse;
+import service.requests.*;
+import service.results.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +32,17 @@ public class ServerFacade {
                 AuthData.class);
     }
 
-
+    public AuthData login(String username,
+                          String password) throws Exception {
+        LoginRequest request =
+                new LoginRequest(username, password);
+        return makeRequest(
+                "POST",
+                "/session",
+                request,
+                null,
+                AuthData.class);
+    }
 
 
 
