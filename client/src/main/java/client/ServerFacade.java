@@ -1,6 +1,8 @@
 package client;
 
 import com.google.gson.Gson;
+import model.AuthData;
+import service.requests.RegisterRequest;
 import service.results.ErrorResponse;
 
 import java.io.InputStream;
@@ -16,6 +18,19 @@ public class ServerFacade {
 
     // Supplies the port on which the local chess server is listening.
     public ServerFacade(int port) {serverUrl = "http://localhost:" + port;}
+
+    public AuthData register(String username,
+                             String password,
+                             String email) throws Exception {
+        RegisterRequest request =
+                new RegisterRequest(username, password, email);
+        return makeRequest(
+                "POST",
+                "/user",
+                request,
+                null,
+                AuthData.class);
+    }
 
 
 
