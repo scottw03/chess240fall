@@ -65,7 +65,15 @@ public class ServerFacade {
                 CreateGameResult.class);
     }
 
-
+    public ListGamesResult listGames(String authToken)
+            throws Exception {
+        return makeRequest(
+                "GET",
+                "/game",
+                null,
+                authToken,
+                ListGamesResult.class);
+    }
 
 
 
