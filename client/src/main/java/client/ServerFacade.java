@@ -53,6 +53,18 @@ public class ServerFacade {
         null);
     }
 
+    public CreateGameResult createGame(String gameName,
+                                       String authToken) throws Exception {
+        CreateGameRequest request =
+                new CreateGameRequest(gameName, authToken);
+        return makeRequest(
+                "POST",
+                "/game",
+                request,
+                authToken,
+                CreateGameResult.class);
+    }
+
 
 
 
