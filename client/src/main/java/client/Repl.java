@@ -49,8 +49,6 @@ public class Repl {
                     executePrelogin(command);
             case POSTLOGIN ->
                     executePostlogin(command);
-            case GAMEPLAY ->
-                    executeGameplay(command);
         }
     }
 
@@ -75,6 +73,125 @@ public class Repl {
                 """);
     }
 
+    private void register() throws Exception {
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        String result =
+                client.register(
+                        username,
+                        password,
+                        email);
+        System.out.println(result);
+    }
 
+    private void login() throws Exception {
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        String result = client.login(
+                username,
+                password);
+        System.out.println(result);
+    }
+
+    private void executePostlogin(String command)
+            throws Exception {
+        switch (command) {
+            case "help" -> printPostloginHelp();
+            case "logout" -> logout();
+            case "create" -> createGame();
+            case "list" -> listGames();
+            case "join" -> playGame();
+            case "observe" -> observeGame();
+            default ->
+                    System.out.println(
+                            "Unknown command. Type 'help'.");
+        }
+    }
+
+    private void printPostloginHelp() {
+        System.out.println("""
+                create - a game
+                list - games
+                join - a game
+                observe - a game
+                logout - when you are done
+                quit - playing chess
+                help - with possible commands
+                """);
+    }
+
+    private void logout() throws Exception {
+        System.out.println(client.logout());
+    }
+
+    private void createGame() throws Exception {
+        System.out.print("Game Name: ");
+        String gameName = scanner.nextLine();
+        System.out.println(
+                client.createGame(
+                        gameName));
+    }
+
+    private void listGames() throws Exception {
+        var games = client.listGames();
+        if (games.isEmpty()) {
+            System.out.println("No games found.");
+            return;
+        }
+        int index = 1;
+        for (var game : games) {
+            System.out.printf(
+                    "%d. %s%n",
+                    index++,
+                    game.gameName());
+            System.out.printf(
+                    "   White: %s%n",
+                    game.whiteUsername());
+            System.out.printf(
+                    "   Black: %s%n%n",
+                    game.blackUsername());
+        }
+    }
+
+    private void playGame() {
+        try {
+            System.out.print("Game Number: ");
+            int gameNumber =
+                    Integer.parseInt(
+                            scanner.nextLine());
+            System.out.print(" Color (WHITE/BLACK): ");
+            String color = scanner.nextLine();
+            System.out.println(
+                    client.joinGame(
+                            color,
+                            gameNumber));
+        } catch (NumberFormatException ex) {
+            System.out.println(
+                    "Please enter a valid game number.");
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private void observeGame() {
+        try {
+            System.out.print("Game Number: ");
+            int gameNumber =
+                    Integer.parseInt(
+                            scanner.nextLine());
+            client.observeGame(gameNumber);
+        } catch (NumberFormatException ex) {
+            System.out.println(
+                    "Please enter a valid game number.");
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
 }
