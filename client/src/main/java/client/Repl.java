@@ -14,13 +14,15 @@ public class Repl {
         while (running) {
             try {
                 printPrompt();
-                String input = scanner.nextLine().trim();
+                String input = readLine().trim();
                 if (input.equalsIgnoreCase("quit")) {
                     running = false;
                 }
                 else {
                     executeCommand(input);
                 }
+            } catch (java.util.NoSuchElementException ex) {
+                running = false;
             } catch (Exception ex) {
                 System.out.println("Error: " + ex.getMessage());
             }
@@ -38,17 +40,25 @@ public class Repl {
         }
     }
 
-    private void executeCommand(String input)
-            throws Exception {
-        String[] tokens =
-                input.split("\\s+");
+    private void executeCommand(String input) throws Exception {
+        if (input.isBlank()) {
+            return;
+        }
+
+        String[] tokens = input.split("\\s+");
+
+        if (tokens.length != 1) {
+            System.out.println(
+                    "Enter a command by itself. Details will be prompted.");
+            return;
+        }
+
         String command =
-                tokens[0].toLowerCase();
+                tokens[0].toLowerCase(java.util.Locale.ROOT);
+
         switch (client.getState()) {
-            case PRELOGIN ->
-                    executePrelogin(command);
-            case POSTLOGIN ->
-                    executePostlogin(command);
+            case PRELOGIN -> executePrelogin(command);
+            case POSTLOGIN -> executePostlogin(command);
         }
     }
 
@@ -75,11 +85,11 @@ public class Repl {
 
     private void register() throws Exception {
         System.out.print("Username: ");
-        String username = scanner.nextLine();
+        String username = readLine();
         System.out.print("Password: ");
-        String password = scanner.nextLine();
+        String password = readLine();
         System.out.print("Email: ");
-        String email = scanner.nextLine();
+        String email = readLine();
         String result =
                 client.register(
                         username,
@@ -90,9 +100,9 @@ public class Repl {
 
     private void login() throws Exception {
         System.out.print("Username: ");
-        String username = scanner.nextLine();
+        String username = readLine();
         System.out.print("Password: ");
-        String password = scanner.nextLine();
+        String password = readLine();
         String result = client.login(
                 username,
                 password);
@@ -132,7 +142,7 @@ public class Repl {
 
     private void createGame() throws Exception {
         System.out.print("Game Name: ");
-        String gameName = scanner.nextLine();
+        String gameName = readLine();
         System.out.println(
                 client.createGame(
                         gameName));
@@ -164,13 +174,15 @@ public class Repl {
             System.out.print("Game Number: ");
             int gameNumber =
                     Integer.parseInt(
-                            scanner.nextLine());
+                            readLine().trim());
             System.out.print(" Color (WHITE/BLACK): ");
-            String color = scanner.nextLine();
+            String color = readLine();
             System.out.println(
                     client.joinGame(
                             color,
                             gameNumber));
+        } catch (java.util.NoSuchElementException ex) {
+            throw ex;
         } catch (NumberFormatException ex) {
             System.out.println(
                     "Please enter a valid game number.");
@@ -184,14 +196,23 @@ public class Repl {
             System.out.print("Game Number: ");
             int gameNumber =
                     Integer.parseInt(
-                            scanner.nextLine());
+                            readLine());
             client.observeGame(gameNumber);
+        } catch (java.util.NoSuchElementException ex) {
+            throw ex;
         } catch (NumberFormatException ex) {
             System.out.println(
                     "Please enter a valid game number.");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    private String readLine() {
+        if (!scanner.hasNextLine()) {
+            throw new java.util.NoSuchElementException();
+        }
+        return scanner.nextLine();
     }
 
 }

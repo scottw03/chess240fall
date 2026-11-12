@@ -1,7 +1,5 @@
 package client;
 
-import chess.*;
-
 public class ClientMain {
     public static void main(String[] args) {
         try {
@@ -10,10 +8,8 @@ public class ClientMain {
             Repl repl = new Repl(client);
             repl.run();
         } catch (Exception ex) {
-            System.out.println(
-                    "Failed to start client: "
-                    + ex.getMessage());
-            ex.printStackTrace();
-        }
+        System.out.println(
+                "Could not start the client. Please check your setup and try again.");
+    }
     }
 }
