@@ -134,6 +134,8 @@ public class ServerFacade {
         }
         // Ensure the connection is established
         connection.connect();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
         // Read the status before deciding which response stream to use.
         int statusCode = connection.getResponseCode();
         // HTTP status codes of 400 or higher represent errors. Decode the
