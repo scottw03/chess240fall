@@ -22,14 +22,17 @@ public class ChessClient {
         POSTLOGIN
     }
 
+    // Stores the facade used to communicate with the server
     public ChessClient(ServerFacade server) {
         this.server = server;
     }
 
+    // Returns the login state
     public State getState() {
         return state;
     }
 
+    // Validates registration details and logs in new user
     public String register(
             String username,
             String password,
@@ -57,6 +60,7 @@ public class ChessClient {
         return "Successfully registered.";
     }
 
+    // Validates credentials and stores successful login session
     public String login(
             String username,
             String password)
@@ -79,6 +83,7 @@ public class ChessClient {
         return "Successfully logged in.";
     }
 
+    // Ends the session and returns client to prelogin state
     public String logout()
             throws Exception {
         server.logout(authToken);
@@ -88,6 +93,7 @@ public class ChessClient {
         return "Logged out.";
     }
 
+    // Creates a named game without joining
     public String createGame(String gameName) throws Exception {
         if (gameName == null || gameName.isBlank()) {
             throw new Exception("Please enter a game name.");
@@ -98,6 +104,7 @@ public class ChessClient {
         return "Game created. Use 'list' to see available games.";
     }
 
+    // Refreshes games list while preserving their order
     public List<GameData> listGames()
             throws Exception {
         ListGamesResult result =
@@ -107,6 +114,7 @@ public class ChessClient {
         return new ArrayList<>(result.games());
     }
 
+    // Joins a numbered game and draws initial board
     public String joinGame(String color, int gameNumber) throws Exception {
         GameData game = selectListedGame(gameNumber);
 
@@ -137,6 +145,7 @@ public class ChessClient {
         return "Joined game.";
     }
 
+    // Selects a game and displays initial board to observer
     public void observeGame(int gameNumber) throws Exception {
         GameData game = selectListedGame(gameNumber);
 
@@ -145,6 +154,7 @@ public class ChessClient {
         System.out.println("Observing " + game.gameName() + ".");
     }
 
+    // Converts displayed game number into game information
     private GameData selectListedGame(int gameNumber) throws Exception {
         if (listedGames.isEmpty()) {
             throw new Exception(
@@ -160,6 +170,7 @@ public class ChessClient {
         return listedGames.get(gameNumber - 1);
     }
 
+    // Draws initial board position from chosen perspective
     private void drawInitialBoard(ChessGame.TeamColor perspective) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();

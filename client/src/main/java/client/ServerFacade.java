@@ -1,14 +1,17 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import model.AuthData;
 import service.requests.*;
 import service.results.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 public class ServerFacade {
 
@@ -97,70 +100,103 @@ public class ServerFacade {
                 null);
     }
 
+    // Sends an HTTP request, checks for errors, and parses the expected response.
     private <T> T makeRequest(
             String method,
             String path,
             Object request,
             String authToken,
             Class<T> responseClass) throws Exception {
-        // Combine the base address and path into a full endpoint URL.
+
         URI uri = new URI(serverUrl + path);
-        // Get an HTTP connection object so we can configure the request.
+
         HttpURLConnection connection =
                 (HttpURLConnection) uri.toURL().openConnection();
-        connection.setRequestMethod(method);
-        // For authenticated calls, put the token in the header where the
-        // server can read it and look up the associated session.
-        if (authToken != null) {
+
+        try {
+            // Configure timeouts before any operation can connect.
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod(method);
+
+            if (authToken != null) {
+                connection.setRequestProperty(
+                        "Authorization",
+                        authToken);
+            }
+
             connection.setRequestProperty(
-                    "Authorization",
-                    authToken);
-        }
-        // Declare JSON as the format used when this request has a body.
-        connection.setRequestProperty(
-                "Content-Type",
-                "application/json");
-        // A request object means there is a body to send. Enable output,
-        // turn the Java object into JSON, and write the JSON as bytes.
-        if (request != null) {
-            connection.setDoOutput(true);
-            // Closes the stream when the block ends,
-            // including if serialization or writing throws an exception.
-            try (OutputStream body =
-                    connection.getOutputStream()) {
-                String json = gson.toJson(request);
-                body.write(json.getBytes());
+                    "Content-Type",
+                    "application/json; charset=UTF-8");
+
+            if (request != null) {
+                connection.setDoOutput(true);
+
+                try (OutputStream body = connection.getOutputStream()) {
+                    String json = gson.toJson(request);
+                    body.write(json.getBytes(StandardCharsets.UTF_8));
+                }
             }
-        }
-        // Ensure the connection is established
-        connection.connect();
-        connection.setConnectTimeout(5000);
-        connection.setReadTimeout(5000);
-        // Read the status before deciding which response stream to use.
-        int statusCode = connection.getResponseCode();
-        // HTTP status codes of 400 or higher represent errors. Decode the
-        // server's error JSON and throw its message back to the caller.
-        if (statusCode >= 400) {
-            try (InputStream errorStream =
-                    connection.getErrorStream()) {
-                ErrorResponse error =
-                        gson.fromJson(
-                                new String(errorStream.readAllBytes()),
-                                ErrorResponse.class);
-                throw new Exception(error.message());
+
+            // This establishes the connection if it is not already open.
+            int statusCode = connection.getResponseCode();
+
+            if (statusCode >= 400) {
+                String message;
+
+                if (statusCode >= 500) {
+                    message = "The server could not complete the request. "
+                            + "Please try again.";
+                } else if (statusCode == 401) {
+                    message = path.equals("/session") && method.equals("POST")
+                            ? "Incorrect username or password."
+                            : "Your session is not valid. Please log in again.";
+                } else if (statusCode == 403 && path.equals("/user")) {
+                    message = "That username is already taken.";
+                } else if (statusCode == 403
+                        && path.equals("/game")
+                        && method.equals("PUT")) {
+                    message = "That player position is already taken.";
+                } else if (path.equals("/game") && method.equals("PUT")) {
+                    message = "Could not join that game. Refresh the game list "
+                            + "and choose an available color.";
+                } else {
+                    message = "The request was not accepted. "
+                            + "Please check your information.";
+                }
+
+                throw new Exception(message);
             }
-        }
-        // If all you needed was a successful connection, return nothing
-        if (responseClass == null) {
-            return null;
-        }
-        // Read the response bytes, turn them into JSON text, and let Gson
-        // build the requested Java object
-        try (InputStream responseBody =
-                connection.getInputStream()) {
-            String json =
-                    new String(responseBody.readAllBytes());
-            return gson.fromJson(json, responseClass);
+
+            try (InputStream responseBody = connection.getInputStream()) {
+                if (responseClass == null) {
+                    return null;
+                }
+
+                String json = new String(
+                        responseBody.readAllBytes(),
+                        StandardCharsets.UTF_8);
+
+                T result = gson.fromJson(json, responseClass);
+
+                if (result == null) {
+                    throw new Exception(
+                            "The server returned an unexpected response. "
+                                    + "Please try again.");
+                }
+
+                return result;
+            }
+        } catch (IOException ex) {
+            throw new Exception(
+                    "Could not communicate with the server. "
+                            + "Check that it is running and try again.");
+        } catch (JsonParseException ex) {
+            throw new Exception(
+                    "The server returned an unexpected response. "
+                            + "Please try again.");
+        } finally {
+            connection.disconnect();
         }
     }
 }

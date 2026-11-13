@@ -6,10 +6,13 @@ public class Repl {
     private final ChessClient client;
     private final Scanner scanner = new Scanner(System.in);
 
+    // Connects the command interface to the chess client
     public Repl(ChessClient client) {this.client = client;}
 
+    // Runs the command loop until the user quits of input closes
     public void run() {
         System.out.println("Welcome to 240 Chess!");
+        System.out.println("Type help to list possible actions");
         boolean running = true;
         while (running) {
             try {
@@ -23,6 +26,9 @@ public class Repl {
                 }
             } catch (java.util.NoSuchElementException ex) {
                 running = false;
+            } catch (RuntimeException ex) {
+                System.out.println(
+                        "Could not complete the command. Please try again.");
             } catch (Exception ex) {
                 System.out.println("Error: " + ex.getMessage());
             }
@@ -30,6 +36,7 @@ public class Repl {
         System.out.println("Goodbye.");
     }
 
+    // Prints a prompt for the current login state
     private void printPrompt() {
         if (client.getState() ==
                 ChessClient.State.PRELOGIN) {
@@ -40,6 +47,7 @@ public class Repl {
         }
     }
 
+    // Validates the command and sends it to the appropriate menu
     private void executeCommand(String input) throws Exception {
         if (input.isBlank()) {
             return;
@@ -62,6 +70,7 @@ public class Repl {
         }
     }
 
+    // Handles commands available before logging in
     private void executePrelogin(String command)
             throws Exception {
         switch (command) {
@@ -74,15 +83,17 @@ public class Repl {
         }
     }
 
+    // Lists the commands available before logging in
     private void printPreloginHelp() {
         System.out.println("""
                 register - to create an account
                 login - to play chess
-                quit - playing chess
+                quit - exit the client
                 help - with possible commands
                 """);
     }
 
+    // Collects registration details and requests a new account
     private void register() throws Exception {
         System.out.print("Username: ");
         String username = readLine();
@@ -98,6 +109,7 @@ public class Repl {
         System.out.println(result);
     }
 
+    // Collects credentials and requests login
     private void login() throws Exception {
         System.out.print("Username: ");
         String username = readLine();
@@ -109,6 +121,7 @@ public class Repl {
         System.out.println(result);
     }
 
+    // Handles commands available after logging in
     private void executePostlogin(String command)
             throws Exception {
         switch (command) {
@@ -124,6 +137,7 @@ public class Repl {
         }
     }
 
+    // Lists the commands available after logging in
     private void printPostloginHelp() {
         System.out.println("""
                 create - a game
@@ -131,15 +145,17 @@ public class Repl {
                 join - a game
                 observe - a game
                 logout - when you are done
-                quit - playing chess
+                quit - exit the client
                 help - with possible commands
                 """);
     }
 
+    // Logs out the user
     private void logout() throws Exception {
         System.out.println(client.logout());
     }
 
+    // Collects a game name and requests game creation
     private void createGame() throws Exception {
         System.out.print("Game Name: ");
         String gameName = readLine();
@@ -148,6 +164,7 @@ public class Repl {
                         gameName));
     }
 
+    // Displays numbered games and their players
     private void listGames() throws Exception {
         var games = client.listGames();
         if (games.isEmpty()) {
@@ -162,13 +179,19 @@ public class Repl {
                     game.gameName());
             System.out.printf(
                     "   White: %s%n",
-                    game.whiteUsername());
+                    game.whiteUsername() == null
+                            ? "(open)"
+                            : game.whiteUsername());
+
             System.out.printf(
                     "   Black: %s%n%n",
-                    game.blackUsername());
+                    game.blackUsername() == null
+                            ? "(open)"
+                            : game.blackUsername());
         }
     }
 
+    // Collects a game number and color and requests to join
     private void playGame() {
         try {
             System.out.print("Game Number: ");
@@ -186,28 +209,36 @@ public class Repl {
         } catch (NumberFormatException ex) {
             System.out.println(
                     "Please enter a valid game number.");
+        } catch (RuntimeException ex) {
+            System.out.println(
+                    "Could not complete the command. Please try again.");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
 
+    // Selects a listed game to view
     private void observeGame() {
         try {
             System.out.print("Game Number: ");
             int gameNumber =
                     Integer.parseInt(
-                            readLine());
+                            readLine().trim());
             client.observeGame(gameNumber);
         } catch (java.util.NoSuchElementException ex) {
             throw ex;
         } catch (NumberFormatException ex) {
             System.out.println(
                     "Please enter a valid game number.");
+        } catch (RuntimeException ex) {
+            System.out.println(
+                    "Could not complete the command. Please try again.");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
 
+    // Reads one line or signals that terminal input has closed
     private String readLine() {
         if (!scanner.hasNextLine()) {
             throw new java.util.NoSuchElementException();
